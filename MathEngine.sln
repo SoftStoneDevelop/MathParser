@@ -5,11 +5,11 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleCalculator", "Src\ConsoleCalculator\ConsoleCalculator.csproj", "{354EFFE5-1409-4451-B7F6-37EC092953D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathEngine", "Src\Calculator\MathEngine.csproj", "{AEF0F104-F1F0-416F-90D3-25E632DB28BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathEngine", "Src\MathEngine\MathEngine.csproj", "{AEF0F104-F1F0-416F-90D3-25E632DB28BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathEngineBenchmark", "Src\CalculatorBenchmark\MathEngineBenchmark.csproj", "{C8919754-6C82-4D1A-80F8-0391541FC004}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathEngineBenchmark", "Src\MathEngineBenchmark\MathEngineBenchmark.csproj", "{C8919754-6C82-4D1A-80F8-0391541FC004}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathEngineTests", "Src\CalculatorTests\MathEngineTests.csproj", "{5E2C5824-3BA3-470A-8B51-0BCD42A83F59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathEngineTests", "Src\MathEngineTests\MathEngineTests.csproj", "{5E2C5824-3BA3-470A-8B51-0BCD42A83F59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
