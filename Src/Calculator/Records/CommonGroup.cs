@@ -3,6 +3,8 @@ using System.Buffers;
 
 namespace MathEngine.Records
 {
-    public record Operator(string Pattern, int Order, Associativity Associativity, ChunkType ChunkType);
-    public record CunkExpression(IMemoryOwner<char> MemoryOwner, int PayloadSize, ChunkType chunkType);
+    public record ExpressionItem(ChunkType ChunkType);
+    public record Operator(string Pattern, ChunkType ChunkType, int Order, Associativity Associativity) : ExpressionItem(ChunkType);
+
+    public record CunkExpression(IMemoryOwner<char> MemoryOwner, int PayloadSize, ExpressionItem Item);
 }

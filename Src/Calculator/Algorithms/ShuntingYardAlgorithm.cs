@@ -26,6 +26,11 @@ namespace MathEngine.Algorithms
             {
                 try
                 {
+                    if(spanIterate[i] == ' ')
+                    {
+                        continue;
+                    }
+
                     if (spanIterate[i] == '(')
                     {
                         stackOperators.Push(ParserHelper.LeftBracket);
@@ -34,33 +39,28 @@ namespace MathEngine.Algorithms
 
                     if (spanIterate[i] == ')')
                     {
+                        if(stackOperators.Count == 0)
+                        {
+                            throw new InvalidOperationException("The operator stack is empty");
+                        }
+
                         while(
                             stackOperators.TryPeek(out var topOperator) &&
                             topOperator != ParserHelper.LeftBracket
                             )
                         {
                             var operatorToOutpit = stackOperators.Pop();
-                            var memory = poolMemory.Rent(operatorToOutpit.Pattern.Length);
-                            try
-                            {
-                                var spanMemory = memory.Memory.Span;
-                                operatorToOutpit.Pattern.CopyTo(spanMemory);
-                                output.Enqueue(new(memory, operatorToOutpit.Pattern.Length, operatorToOutpit.ChunkType));
-                            }
-                            catch
-                            {
-                                memory.Dispose();
-                                throw;
-                            }
+                            output.Enqueue(new(null, 0, operatorToOutpit));
                         }
 
                         if(stackOperators.Count == 0)
                         {
-                            throw new InvalidOperationException("Not found left bracket");
+                            throw new InvalidOperationException("There are mismatched parentheses");
                         }
                         stackOperators.Pop();
                     }
 
+                    //check is number
                     var numberLength = ParserHelper.IsNumber(spanIterate.Slice(i));
                     if (numberLength != -1)
                     {
@@ -69,7 +69,9 @@ namespace MathEngine.Algorithms
                         {
                             var spanMemory = memory.Memory.Span;
                             spanIterate.Slice(i, numberLength).CopyTo(spanMemory);
-                            output.Enqueue(new(memory, numberLength, ChunkType.Number));
+                            output.Enqueue(new(memory, numberLength, ParserHelper.NumberOperand));
+                            i += numberLength - 1;
+                            continue;
                         }
                         catch
                         {
@@ -78,12 +80,36 @@ namespace MathEngine.Algorithms
                         }
                     }
 
-                    Operator op = null;
+                    var spanTemp = spanIterate.Slice(i);
+                    //check is function
+                    for (int j = 0; j < ParserHelper.Functions.Length; j++)
+                    {
+                        var tempOp = ParserHelper.Functions[j];
+                        if (tempOp.Pattern.Length > spanTemp.Length)
+                        {
+                            continue;
+                        }
+
+                        var isPattern = true;
+                        for (int iP = 0; iP < tempOp.Pattern.Length; iP++)
+                        {
+                            if (spanTemp[iP] != tempOp.Pattern[iP])
+                            {
+                                isPattern = false;
+                                break;
+                            }
+                        }
+
+                        if(isPattern)
+                            stackOperators.Push(tempOp);
+                    }
+
+
+                    //check is operator
+
                     for (int j = 0; j < ParserHelper.Operators.Length; j++)
                     {
                         var tempOp = ParserHelper.Operators[j];
-                        var spanTemp = spanIterate.Slice(i);
-
                         if(tempOp.Pattern.Length > spanTemp.Length)
                         {
                             continue;
@@ -101,32 +127,19 @@ namespace MathEngine.Algorithms
 
                         if(isPattern)
                         {
-                            op = tempOp;
-                            break;
-                        }
-                    }
+                            while (
+                                stackOperators.TryPeek(out var topOperator) &&
+                                topOperator != ParserHelper.LeftBracket &&
+                                ((topOperator.Order > tempOp.Order) || (topOperator.Order == tempOp.Order && tempOp.Associativity == Associativity.Left))
+                                )
+                            {
+                                var operatorToOutpit = stackOperators.Pop();
+                                output.Enqueue(new(null, 0, operatorToOutpit));
+                            }
 
-                    if(op != null)
-                    {
-                        while (
-                            stackOperators.TryPeek(out var topOperator) &&
-                            topOperator != ParserHelper.LeftBracket &&
-                            ((topOperator.Order > op.Order) || (topOperator.Order == op.Order && op.Associativity == Associativity.Left))
-                            )
-                        {
-                            var operatorToOutpit = stackOperators.Pop();
-                            var memory = poolMemory.Rent(operatorToOutpit.Pattern.Length);
-                            try
-                            {
-                                var spanMemory = memory.Memory.Span;
-                                operatorToOutpit.Pattern.CopyTo(spanMemory);
-                                output.Enqueue(new(memory, operatorToOutpit.Pattern.Length, operatorToOutpit.ChunkType));
-                            }
-                            catch
-                            {
-                                memory.Dispose();
-                                throw;
-                            }
+                            stackOperators.Push(tempOp);
+
+                            break;
                         }
                     }
                 }
@@ -137,6 +150,16 @@ namespace MathEngine.Algorithms
 
                     throw;
                 }
+            }
+
+            while(stackOperators.TryPop(out var topOperator))
+            {
+                if(topOperator == ParserHelper.LeftBracket)
+                {
+                    throw new InvalidOperationException("There are mismatched parentheses");
+                }
+
+                output.Enqueue(new(null, 0, topOperator));
             }
         }
     }

@@ -6,17 +6,16 @@ namespace MathEngine.Helpers
     public static class ParserHelper
     {
         public static readonly char[] Numbers = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
+        #region Operators
+
         public static readonly Operator[] Operators =
             {
-            new Operator("*", 3, Associativity.Left, ChunkType.Multiplication),
-            new Operator("/", 3, Associativity.Left, ChunkType.Division),
-            new Operator("+", 2, Associativity.Left, ChunkType.Addition),
-            new Operator("-", 2, Associativity.Left, ChunkType.Subtraction)
+            new Operator("*", ChunkType.Multiplication, 3, Associativity.Left),//0
+            new Operator("/", ChunkType.Division, 3, Associativity.Left),//1
+            new Operator("+", ChunkType.Addition, 2, Associativity.Left),//2
+            new Operator("-", ChunkType.Subtraction, 2, Associativity.Left)//3
         };
-
-        //becasue this two operators is special
-        public static readonly Operator LeftBracket = new("(", 0, Associativity.None, ChunkType.None);
-        public static readonly Operator RightBracket = new(")", 0, Associativity.None, ChunkType.None);
 
         public static Operator Multiplication
         {
@@ -49,6 +48,30 @@ namespace MathEngine.Helpers
                 return Operators[3];
             }
         }
+
+        #endregion
+
+        #region Functions
+
+        public static readonly Operator[] Functions =
+            {
+            new Operator("sin", ChunkType.Sin, 0, Associativity.None)//0
+        };
+
+        public static Operator Sin
+        {
+            get
+            {
+                return Operators[0];
+            }
+        }
+
+        #endregion
+
+        //becasue this is special
+        public static readonly Operator LeftBracket = new("(", ChunkType.None, 0, Associativity.None);
+        public static readonly Operator RightBracket = new(")", ChunkType.None, 0, Associativity.None);
+        public static readonly ExpressionItem NumberOperand = new(ChunkType.Number);
 
         public static int IsNumber(ReadOnlySpan<char> chars)
         {
