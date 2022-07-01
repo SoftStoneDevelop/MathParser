@@ -62,7 +62,7 @@ namespace MathEngine.Helpers
         {
             get
             {
-                return Operators[0];
+                return Functions[0];
             }
         }
 
