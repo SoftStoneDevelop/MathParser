@@ -24,13 +24,13 @@ namespace MathEngine
                     if (chunk.Item.ChunkType == Enums.ChunkType.Number)
                     {
                         if (!float.TryParse(
-                            chunk.MemoryOwner.Memory.Span,
+                            chunk.MemoryOwner.Memory.Span.Slice(0, chunk.PayloadSize),
                             NumberStyles.Any,
                             CultureInfo.CurrentCulture,//TODO replace on correct for ',' and '.' separators
                             out var number)
                             )
                         {
-                            throw new ArgumentException($"Invalid number '{chunk.MemoryOwner.Memory.Span}'");
+                            throw new ArgumentException($"Invalid number '{chunk.MemoryOwner.Memory.Span.Slice(0, chunk.PayloadSize)}'");
                         }
 
                         chunk.MemoryOwner.Dispose();
