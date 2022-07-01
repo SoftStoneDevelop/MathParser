@@ -1,8 +1,8 @@
-﻿using CalculatorEngine.Helpers;
+﻿using MathEngine.Helpers;
 using NUnit.Framework;
 using System;
 
-namespace CalculatorTests
+namespace MathEngineTests
 {
     [TestFixture]
     public class ParserHelperFixture

@@ -1,10 +1,10 @@
-using CalculatorEngine;
+using MathEngine;
 using NUnit.Framework;
 
-namespace CalculatorTests
+namespace MathEngineTests
 {
     [TestFixture]
-    public class CalculatorFixture
+    public class MathEngineFixture
     {
         private ICalculator _calculator;
         

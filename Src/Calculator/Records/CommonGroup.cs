@@ -1,7 +1,8 @@
-﻿using System.Buffers;
+﻿using MathEngine.Enums;
+using System.Buffers;
 
-namespace CalculatorEngine.Records
+namespace MathEngine.Records
 {
-    public record Operator(string Name, int Order, Associativity Associativity);
-    public record CunkExpression(IMemoryOwner<char> MemoryOwner, int PayloadSize);
+    public record Operator(string Pattern, int Order, Associativity Associativity, ChunkType ChunkType);
+    public record CunkExpression(IMemoryOwner<char> MemoryOwner, int PayloadSize, ChunkType chunkType);
 }

@@ -1,14 +1,13 @@
 ﻿using BenchmarkDotNet.Running;
-using System.Diagnostics;
 
-namespace CalculatorBenchmark
+namespace MathEngineBenchmark
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<CalculateJob>();
-            BenchmarkRunner.Run<CalculateSIMDJob>();
+            BenchmarkRunner.Run<MathEngineJob>();
+            BenchmarkRunner.Run<MathEngineSIMDJob>();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace CalculatorEngine
+﻿namespace MathEngine
 {
     public class CalculatorSIMD : ICalculator
     {

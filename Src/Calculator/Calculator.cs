@@ -1,12 +1,5 @@
-﻿namespace CalculatorEngine
+﻿namespace MathEngine
 {
-    public enum Associativity
-    {
-        None = 0,
-        Right = 1,
-        Left = 2,
-    }
-
     public class Calculator : ICalculator
     {
         public float CalculateExpression(string expression)

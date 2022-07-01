@@ -1,8 +1,9 @@
-﻿using CalculatorEngine.Helpers;
-using CalculatorEngine.Records;
+﻿using MathEngine.Enums;
+using MathEngine.Helpers;
+using MathEngine.Records;
 using System.Buffers;
 
-namespace CalculatorEngine.Algorithms
+namespace MathEngine.Algorithms
 {
     public static class ShuntingYardAlgorithm
     {
@@ -33,7 +34,31 @@ namespace CalculatorEngine.Algorithms
 
                     if (spanIterate[i] == ')')
                     {
-                        //TODO
+                        while(
+                            stackOperators.TryPeek(out var topOperator) &&
+                            topOperator != ParserHelper.LeftBracket
+                            )
+                        {
+                            var operatorToOutpit = stackOperators.Pop();
+                            var memory = poolMemory.Rent(operatorToOutpit.Pattern.Length);
+                            try
+                            {
+                                var spanMemory = memory.Memory.Span;
+                                operatorToOutpit.Pattern.CopyTo(spanMemory);
+                                output.Enqueue(new(memory, operatorToOutpit.Pattern.Length, operatorToOutpit.ChunkType));
+                            }
+                            catch
+                            {
+                                memory.Dispose();
+                                throw;
+                            }
+                        }
+
+                        if(stackOperators.Count == 0)
+                        {
+                            throw new InvalidOperationException("Not found left bracket");
+                        }
+                        stackOperators.Pop();
                     }
 
                     var numberLength = ParserHelper.IsNumber(spanIterate.Slice(i));
@@ -44,7 +69,7 @@ namespace CalculatorEngine.Algorithms
                         {
                             var spanMemory = memory.Memory.Span;
                             spanIterate.Slice(i, numberLength).CopyTo(spanMemory);
-                            output.Enqueue(new(memory, numberLength));
+                            output.Enqueue(new(memory, numberLength, ChunkType.Number));
                         }
                         catch
                         {
@@ -56,27 +81,52 @@ namespace CalculatorEngine.Algorithms
                     Operator op = null;
                     for (int j = 0; j < ParserHelper.Operators.Length; j++)
                     {
-                        //todo is Operator?
+                        var tempOp = ParserHelper.Operators[j];
+                        var spanTemp = spanIterate.Slice(i);
+
+                        if(tempOp.Pattern.Length > spanTemp.Length)
+                        {
+                            continue;
+                        }
+
+                        var isPattern = true;
+                        for (int iP = 0; iP < tempOp.Pattern.Length; iP++)
+                        {
+                            if (spanTemp[iP] != tempOp.Pattern[iP])
+                            {
+                                isPattern = false;
+                                break;
+                            }
+                        }
+
+                        if(isPattern)
+                        {
+                            op = tempOp;
+                            break;
+                        }
                     }
 
-                    while (
+                    if(op != null)
+                    {
+                        while (
                             stackOperators.TryPeek(out var topOperator) &&
                             topOperator != ParserHelper.LeftBracket &&
                             ((topOperator.Order > op.Order) || (topOperator.Order == op.Order && op.Associativity == Associativity.Left))
                             )
-                    {
-                        var operatorToOutpit = stackOperators.Pop();
-                        var memory = poolMemory.Rent(operatorToOutpit.Name.Length);
-                        try
                         {
-                            var spanMemory = memory.Memory.Span;
-                            operatorToOutpit.Name.CopyTo(spanMemory);
-                            output.Enqueue(new(memory, operatorToOutpit.Name.Length));
-                        }
-                        catch
-                        {
-                            memory.Dispose();
-                            throw;
+                            var operatorToOutpit = stackOperators.Pop();
+                            var memory = poolMemory.Rent(operatorToOutpit.Pattern.Length);
+                            try
+                            {
+                                var spanMemory = memory.Memory.Span;
+                                operatorToOutpit.Pattern.CopyTo(spanMemory);
+                                output.Enqueue(new(memory, operatorToOutpit.Pattern.Length, operatorToOutpit.ChunkType));
+                            }
+                            catch
+                            {
+                                memory.Dispose();
+                                throw;
+                            }
                         }
                     }
                 }

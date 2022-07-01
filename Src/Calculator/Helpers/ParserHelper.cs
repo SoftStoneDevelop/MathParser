@@ -1,20 +1,22 @@
-﻿using CalculatorEngine.Records;
+﻿using MathEngine.Enums;
+using MathEngine.Records;
 
-namespace CalculatorEngine.Helpers
+namespace MathEngine.Helpers
 {
     public static class ParserHelper
     {
         public static readonly char[] Numbers = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
         public static readonly Operator[] Operators =
             {
-            new Operator("*", 3, Associativity.Left),
-            new Operator("/", 3, Associativity.Left),
-            new Operator("+", 0, Associativity.Left),
-            new Operator("-", 0, Associativity.Left)
+            new Operator("*", 3, Associativity.Left, ChunkType.Multiplication),
+            new Operator("/", 3, Associativity.Left, ChunkType.Division),
+            new Operator("+", 2, Associativity.Left, ChunkType.Addition),
+            new Operator("-", 2, Associativity.Left, ChunkType.Subtraction)
         };
 
-        public static readonly Operator LeftBracket = new("(", 0, Associativity.None);
-        public static readonly Operator RightBracket = new(")", 0, Associativity.None);
+        //becasue this two operators is special
+        public static readonly Operator LeftBracket = new("(", 0, Associativity.None, ChunkType.None);
+        public static readonly Operator RightBracket = new(")", 0, Associativity.None, ChunkType.None);
 
         public static Operator Multiplication
         {

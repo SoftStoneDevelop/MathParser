@@ -1,12 +1,12 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using CalculatorEngine;
+using MathEngine;
 
-namespace CalculatorBenchmark
+namespace MathEngineBenchmark
 {
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net60)]
-    public class CalculateJob
+    public class MathEngineJob
     {
         [Params(100, 1000, 10000, 100000, 250000, 500000, 1000000)]
         public int Iterations;

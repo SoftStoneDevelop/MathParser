@@ -1,4 +1,4 @@
-﻿namespace CalculatorEngine
+﻿namespace MathEngine
 {
     public interface ICalculator
     {
