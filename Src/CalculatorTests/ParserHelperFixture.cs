@@ -5,7 +5,7 @@ using System;
 namespace MathEngineTests
 {
     [TestFixture]
-    public class ParserHelperFixture
+    internal class ParserHelperFixture
     {
         [Test]
         public void IsNumber()

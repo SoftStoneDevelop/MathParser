@@ -11,12 +11,12 @@ namespace MathEngineBenchmark
         [Params(100, 1000, 10000, 100000, 250000, 500000, 1000000)]
         public int Iterations;
 
-        private ICalculator _calculator;
+        private IMathEngine _mathEngine;
 
         [GlobalSetup]
         public void Setup()
         {
-            _calculator = new Calculator();
+            _mathEngine = new MathEngine.MathEngine();
         }
 
         [Benchmark]
@@ -24,7 +24,7 @@ namespace MathEngineBenchmark
         {
             for (int i = 0; i < Iterations; i++)
             {
-                _calculator.CalculateExpression("");
+                _mathEngine.CalculateExpression("");
             }
         }
     }

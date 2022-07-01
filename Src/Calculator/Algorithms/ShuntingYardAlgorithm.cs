@@ -15,7 +15,7 @@ namespace MathEngine.Algorithms
         /// <returns>Real write chars length</returns>
         public static void ToRVN(
             ReadOnlySpan<char> chars,
-            Queue<CunkExpression> output
+            Queue<ChunkExpression> output
             )
         {
             var spanIterate = chars.Slice(0);

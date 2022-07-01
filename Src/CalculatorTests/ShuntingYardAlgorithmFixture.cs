@@ -8,12 +8,12 @@ using System.Text;
 namespace MathEngineTests
 {
     [TestFixture]
-    public class ShuntingYardAlgorithmFixture
+    internal class ShuntingYardAlgorithmFixture
     {
         [Test]
         public void ToRVN()
         {
-            var queue = new Queue<CunkExpression>();
+            var queue = new Queue<ChunkExpression>();
             ShuntingYardAlgorithm.ToRVN("1 + 1".AsSpan(), queue);
 
             var builder = new StringBuilder();

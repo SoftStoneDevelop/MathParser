@@ -53,9 +53,9 @@ namespace MathEngine.Helpers
 
         #region Functions
 
-        public static readonly Operator[] Functions =
+        public static readonly Function[] Functions =
             {
-            new Operator("sin", ChunkType.Sin, 0, Associativity.None)//0
+            new Function("sin", ChunkType.Sin, 0, Associativity.None, 1)//0
         };
 
         public static Operator Sin
