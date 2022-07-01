@@ -28,6 +28,10 @@ namespace MathEngineTests
             buildString();
             Assert.That(builder.ToString(), Is.EqualTo("33+6/sin"));
 
+            ShuntingYardAlgorithm.ToRVN("1 + sin(45)".AsSpan(), queue);
+            buildString();
+            Assert.That(builder.ToString(), Is.EqualTo("145sin+"));
+
             void buildString()
             {
                 builder.Clear();
