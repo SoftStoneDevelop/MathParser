@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Calculator\MathEngine.csproj" />
+    <ProjectReference Include="..\MathEngine\MathEngine.csproj" />
   </ItemGroup>
 
 </Project>
