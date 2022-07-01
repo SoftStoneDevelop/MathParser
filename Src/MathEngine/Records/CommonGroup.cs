@@ -1,5 +1,4 @@
 ﻿using MathEngine.Enums;
-using System.Buffers;
 
 namespace MathEngine.Records
 {
@@ -9,5 +8,6 @@ namespace MathEngine.Records
     public record Function(string Pattern, ChunkType ChunkType, int Order, Associativity Associativity, int ParametrsCount) 
         : Operator(Pattern, ChunkType, Order, Associativity);
 
-    public record ChunkExpression(IMemoryOwner<char> MemoryOwner, int PayloadSize, ExpressionItem Item);
+    public record ChunkExpression(ExpressionItem Item);
+    public record ChunkNumber(float Number, ExpressionItem Item) : ChunkExpression(Item);
 }

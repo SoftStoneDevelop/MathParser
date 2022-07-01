@@ -1,7 +1,8 @@
 ﻿using MathEngine.Enums;
 using MathEngine.Helpers;
 using MathEngine.Records;
-using System.Buffers;
+using System.Globalization;
+using System.Text;
 
 namespace MathEngine.Algorithms
 {
@@ -15,140 +16,149 @@ namespace MathEngine.Algorithms
         /// <returns>Real write chars length</returns>
         public static void ToRVN(
             ReadOnlySpan<char> chars,
-            Queue<ChunkExpression> output
+            Queue<ChunkExpression> output,
+            StringBuilder builder = null
             )
         {
             var spanIterate = chars.Slice(0);
             var stackOperators = new Stack<Operator>();
-            var poolMemory = MemoryPool<char>.Shared;
+            int numberLength;
 
             for (int i = 0; i < spanIterate.Length; i++)
             {
-                try
+                if (spanIterate[i] == ' ')
                 {
-                    if(spanIterate[i] == ' ')
+                    continue;
+                }
+
+                if (spanIterate[i] == '(')
+                {
+                    stackOperators.Push(ParserHelper.LeftBracket);
+                    continue;
+                }
+
+                if (spanIterate[i] == ')')
+                {
+                    if (stackOperators.Count == 0)
                     {
-                        continue;
+                        throw new InvalidOperationException("The operator stack is empty");
                     }
 
-                    if (spanIterate[i] == '(')
+                    while (
+                        stackOperators.TryPeek(out var topOperator) &&
+                        topOperator != ParserHelper.LeftBracket
+                        )
                     {
-                        stackOperators.Push(ParserHelper.LeftBracket);
-                        continue;
-                    }
-
-                    if (spanIterate[i] == ')')
-                    {
-                        if(stackOperators.Count == 0)
+                        var operatorToOutpit = stackOperators.Pop();
+                        output.Enqueue(new ChunkExpression(operatorToOutpit));
+                        if (builder != null)
                         {
-                            throw new InvalidOperationException("The operator stack is empty");
+                            builder.Append(operatorToOutpit.Pattern);
+                            builder.Append(' ');
                         }
+                    }
 
-                        while(
-                            stackOperators.TryPeek(out var topOperator) &&
-                            topOperator != ParserHelper.LeftBracket
+                    if (stackOperators.Count == 0)
+                    {
+                        throw new InvalidOperationException("There are mismatched parentheses");
+                    }
+                    stackOperators.Pop();
+                }
+
+                //check is number
+                numberLength = ParserHelper.IsNumber(spanIterate.Slice(i));
+                if (numberLength != -1)
+                {
+                    var numberChars = spanIterate.Slice(i, numberLength);
+                    if (!float.TryParse(
+                            numberChars,
+                            NumberStyles.Any,
+                            CultureInfo.CurrentCulture,//TODO replace on correct for ',' and '.' separators
+                            out var number)
                             )
-                        {
-                            var operatorToOutpit = stackOperators.Pop();
-                            output.Enqueue(new(null, 0, operatorToOutpit));
-                        }
-
-                        if(stackOperators.Count == 0)
-                        {
-                            throw new InvalidOperationException("There are mismatched parentheses");
-                        }
-                        stackOperators.Pop();
+                    {
+                        throw new ArgumentException($"Invalid number '{numberChars}'");
                     }
 
-                    //check is number
-                    var numberLength = ParserHelper.IsNumber(spanIterate.Slice(i));
-                    if (numberLength != -1)
+                    output.Enqueue(new ChunkNumber(number, ParserHelper.NumberOperand));
+                    
+                    if(builder != null)
                     {
-                        var memory = poolMemory.Rent(numberLength + 1);
-                        try
-                        {
-                            var spanMemory = memory.Memory.Span;
-                            spanIterate.Slice(i, numberLength).CopyTo(spanMemory);
-                            output.Enqueue(new(memory, numberLength, ParserHelper.NumberOperand));
-                            i += numberLength - 1;
-                            continue;
-                        }
-                        catch
-                        {
-                            memory.Dispose();
-                            throw;
-                        }
+                        builder.Append(numberChars);
+                        builder.Append(' ');
                     }
 
-                    var spanTemp = spanIterate.Slice(i);
-                    //check is function
-                    for (int j = 0; j < ParserHelper.Functions.Length; j++)
+                    i += numberLength - 1;
+
+                    continue;
+                }
+
+                var spanTemp = spanIterate.Slice(i);
+                //check is function
+                for (int j = 0; j < ParserHelper.Functions.Length; j++)
+                {
+                    var tempOp = ParserHelper.Functions[j];
+                    if (tempOp.Pattern.Length > spanTemp.Length)
                     {
-                        var tempOp = ParserHelper.Functions[j];
-                        if (tempOp.Pattern.Length > spanTemp.Length)
-                        {
-                            continue;
-                        }
-
-                        var isPattern = true;
-                        for (int iP = 0; iP < tempOp.Pattern.Length; iP++)
-                        {
-                            if (spanTemp[iP] != tempOp.Pattern[iP])
-                            {
-                                isPattern = false;
-                                break;
-                            }
-                        }
-
-                        if(isPattern)
-                            stackOperators.Push(tempOp);
+                        continue;
                     }
 
-
-                    //check is operator
-
-                    for (int j = 0; j < ParserHelper.Operators.Length; j++)
+                    var isPattern = true;
+                    for (int iP = 0; iP < tempOp.Pattern.Length; iP++)
                     {
-                        var tempOp = ParserHelper.Operators[j];
-                        if(tempOp.Pattern.Length > spanTemp.Length)
+                        if (spanTemp[iP] != tempOp.Pattern[iP])
                         {
-                            continue;
-                        }
-
-                        var isPattern = true;
-                        for (int iP = 0; iP < tempOp.Pattern.Length; iP++)
-                        {
-                            if (spanTemp[iP] != tempOp.Pattern[iP])
-                            {
-                                isPattern = false;
-                                break;
-                            }
-                        }
-
-                        if(isPattern)
-                        {
-                            while (
-                                stackOperators.TryPeek(out var topOperator) &&
-                                topOperator != ParserHelper.LeftBracket &&
-                                ((topOperator.Order > tempOp.Order) || (topOperator.Order == tempOp.Order && tempOp.Associativity == Associativity.Left))
-                                )
-                            {
-                                var operatorToOutpit = stackOperators.Pop();
-                                output.Enqueue(new(null, 0, operatorToOutpit));
-                            }
-
-                            stackOperators.Push(tempOp);
-
+                            isPattern = false;
                             break;
                         }
                     }
-                }
-                catch
-                {
-                    while (output.TryDequeue(out var cunkExpression))
-                        cunkExpression.MemoryOwner.Dispose();
 
-                    throw;
+                    if (isPattern)
+                        stackOperators.Push(tempOp);
+                }
+
+
+                //check is operator
+
+                for (int j = 0; j < ParserHelper.Operators.Length; j++)
+                {
+                    var tempOp = ParserHelper.Operators[j];
+                    if (tempOp.Pattern.Length > spanTemp.Length)
+                    {
+                        continue;
+                    }
+
+                    var isPattern = true;
+                    for (int iP = 0; iP < tempOp.Pattern.Length; iP++)
+                    {
+                        if (spanTemp[iP] != tempOp.Pattern[iP])
+                        {
+                            isPattern = false;
+                            break;
+                        }
+                    }
+
+                    if (isPattern)
+                    {
+                        while (
+                            stackOperators.TryPeek(out var topOperator) &&
+                            topOperator != ParserHelper.LeftBracket &&
+                            ((topOperator.Order > tempOp.Order) || (topOperator.Order == tempOp.Order && tempOp.Associativity == Associativity.Left))
+                            )
+                        {
+                            var operatorToOutpit = stackOperators.Pop();
+                            output.Enqueue(new ChunkExpression(operatorToOutpit));
+                            if (builder != null)
+                            {
+                                builder.Append(operatorToOutpit.Pattern);
+                                builder.Append(' ');
+                            }
+                        }
+
+                        stackOperators.Push(tempOp);
+
+                        break;
+                    }
                 }
             }
 
@@ -159,7 +169,15 @@ namespace MathEngine.Algorithms
                     throw new InvalidOperationException("There are mismatched parentheses");
                 }
 
-                output.Enqueue(new(null, 0, topOperator));
+                output.Enqueue(new ChunkExpression(topOperator));
+                if (builder != null)
+                {
+                    builder.Append(topOperator.Pattern);
+                    if (stackOperators.Count != 0)
+                    {
+                        builder.Append(' ');
+                    }
+                }
             }
         }
     }

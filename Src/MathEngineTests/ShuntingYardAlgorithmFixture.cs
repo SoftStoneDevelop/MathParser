@@ -14,40 +14,21 @@ namespace MathEngineTests
         public void ToRVN()
         {
             var queue = new Queue<ChunkExpression>();
-            ShuntingYardAlgorithm.ToRVN("1 + 1".AsSpan(), queue);
-
             var builder = new StringBuilder();
-            buildString();
-            Assert.That(builder.ToString(), Is.EqualTo("11+"));
+            ShuntingYardAlgorithm.ToRVN("1 + 1".AsSpan(), queue, builder);
+            Assert.That(builder.ToString(), Is.EqualTo("1 1 +"));
+            builder.Clear();
 
-            ShuntingYardAlgorithm.ToRVN("3 + 4 * 2 / (1 - 5)".AsSpan(), queue);
-            buildString();
-            Assert.That(builder.ToString(), Is.EqualTo("342*15-/+"));
+            ShuntingYardAlgorithm.ToRVN("3 + 4 * 2 / (1 - 5)".AsSpan(), queue, builder);
+            Assert.That(builder.ToString(), Is.EqualTo("3 4 2 * 1 5 - / +"));
+            builder.Clear();
 
-            ShuntingYardAlgorithm.ToRVN("sin ( (3 + 3)  / 6   )".AsSpan(), queue);
-            buildString();
-            Assert.That(builder.ToString(), Is.EqualTo("33+6/sin"));
+            ShuntingYardAlgorithm.ToRVN("sin ( (3 + 3)  / 6   )".AsSpan(), queue, builder);
+            Assert.That(builder.ToString(), Is.EqualTo("3 3 + 6 / sin"));
+            builder.Clear();
 
-            ShuntingYardAlgorithm.ToRVN("1 + sin(45)".AsSpan(), queue);
-            buildString();
-            Assert.That(builder.ToString(), Is.EqualTo("145sin+"));
-
-            void buildString()
-            {
-                builder.Clear();
-                while (queue.TryDequeue(out var chunk))
-                {
-                    if(chunk.Item.ChunkType == MathEngine.Enums.ChunkType.Number)
-                    {
-                        builder.Append(chunk.MemoryOwner.Memory.Span.Slice(0, chunk.PayloadSize));
-                        chunk.MemoryOwner.Dispose();
-                    }
-                    else if(chunk.Item is Operator @operator)
-                    {
-                        builder.Append(@operator.Pattern);
-                    }
-                }
-            }
+            ShuntingYardAlgorithm.ToRVN("1 + sin(45)".AsSpan(), queue, builder);
+            Assert.That(builder.ToString(), Is.EqualTo("1 45 sin +"));
         }
     }
 }
