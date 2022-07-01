@@ -12,11 +12,13 @@ namespace MathEngineBenchmark
         public int Iterations;
 
         private IMathEngine _mathEngine;
+        private IMathEngine _mathEngineSIMD;
 
         [GlobalSetup]
         public void Setup()
         {
             _mathEngine = new MathEngine.MathEngine();
+            _mathEngineSIMD = new MathEngine.MathEngineSIMD();
         }
 
         [Benchmark]
@@ -25,6 +27,15 @@ namespace MathEngineBenchmark
             for (int i = 0; i < Iterations; i++)
             {
                 _mathEngine.CalculateExpression("");
+            }
+        }
+
+        [Benchmark(Baseline = true, Description = "With SIMD operation uses")]
+        public void CalculateSIMD()
+        {
+            for (int i = 0; i < Iterations; i++)
+            {
+                _mathEngineSIMD.CalculateExpression("");
             }
         }
     }
