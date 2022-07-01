@@ -8,10 +8,10 @@ using System.Text;
 namespace MathEngineTests
 {
     [TestFixture]
-    public class MathEngineFixture
+    public class ShuntingYardAlgorithmFixture
     {
         [Test]
-        public void CalculateExpression()
+        public void ToRVN()
         {
             var queue = new Queue<CunkExpression>();
             ShuntingYardAlgorithm.ToRVN("1 + 1".AsSpan(), queue);
