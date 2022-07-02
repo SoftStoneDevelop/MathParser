@@ -14,16 +14,51 @@ namespace MathEngineTests
     {
         static IEnumerable<object[]> Source()
         {
-            var pool = MemoryPool<float>.Shared;
-
-            var memory = pool.Rent(2);
-            var data = new float[]
+            yield return new object[]
             {
-                0f,
-                1f
+                "0 + 1",
+                new ChunkExpression[]
+                {
+                    new ChunkNumber(0, ParserHelper.NumberOperand),
+                    new SequenceNumberOperation(
+                        FillMemory(new float[]
+                        {
+                            0f,
+                            1f
+                        },
+                        2
+                        )
+                        , 1, 2, ParserHelper.Addition),
+                },
+                "0 1 S+(2) "
             };
 
-            FillMemory1();
+            yield return new object[]
+            {
+                "10+10+10+10+10+10+10+10+10+10+10",
+                new ChunkExpression[]
+                {
+                    new ChunkNumber(10, ParserHelper.NumberOperand),
+                    new SequenceNumberOperation(FillMemory(new float[]
+                        {
+                            0f,
+                            10f,
+                            10f,
+                            10f,
+                            10f,
+                            10f,
+                            10f,
+                            10f,
+                            10f,
+                            10f,
+                            10f,
+                        },
+                        11
+                        )
+                        , 10, 11, ParserHelper.Addition),
+                },
+                "10 10 10 10 10 10 10 10 10 10 10 S+(11) "
+            };
 
             yield return new object[]
             {
@@ -31,28 +66,18 @@ namespace MathEngineTests
                 new ChunkExpression[]
                 {
                     new ChunkNumber(1, ParserHelper.NumberOperand),
-                    new SequenceNumberOperation(memory, 1, 2, ParserHelper.Addition),
+                    new SequenceNumberOperation(
+                        FillMemory(new float[]
+                        {
+                            0f,
+                            1f
+                        },
+                        2
+                        )
+                        , 1, 2, ParserHelper.Addition),
                 },
                 "1 1 S+(2) "
             };
-
-            memory = pool.Rent(2);
-            data = new float[]
-            {
-                0f,
-                2f
-            };
-
-            FillMemory1();
-
-            var memory2 = pool.Rent(1);
-            data = new float[]
-            {
-                0f,
-                5f
-            };
-
-            FillMemory2();
 
             yield return new object[]
             {
@@ -61,23 +86,30 @@ namespace MathEngineTests
                 {
                     new ChunkNumber(3, ParserHelper.NumberOperand),
                     new ChunkNumber(4, ParserHelper.NumberOperand),
-                    new SequenceNumberOperation(memory, 1, 2, ParserHelper.Multiplication),
+                    new SequenceNumberOperation(
+                        FillMemory(new float[]
+                        {
+                            0f,
+                            2f
+                        },
+                        2
+                        )
+                        , 1, 2, ParserHelper.Multiplication),
                     new ChunkNumber(1, ParserHelper.NumberOperand),
-                    new SequenceNumberOperation(memory2, 1, 2, ParserHelper.Subtraction),
+                    new SequenceNumberOperation(
+                        FillMemory(new float[]
+                        {
+                            0f,
+                            5f
+                        },
+                        2
+                        )
+                        , 1, 2, ParserHelper.Subtraction),
                     new ChunkExpression(ParserHelper.Division),
                     new ChunkExpression(ParserHelper.Addition),
                 },
                 "3 4 2 S*(2) 1 5 S-(2) / + "
             };
-
-            memory = pool.Rent(2);
-            data = new float[]
-            {
-                0f,
-                3f
-            };
-
-            FillMemory1();
 
             yield return new object[]
             {
@@ -85,7 +117,14 @@ namespace MathEngineTests
                 new ChunkExpression[]
                 {
                     new ChunkNumber(3, ParserHelper.NumberOperand),
-                    new SequenceNumberOperation(memory, 1, 2, ParserHelper.Addition),
+                    new SequenceNumberOperation(
+                        FillMemory(new float[]
+                        {
+                            0f,
+                            3f
+                        },
+                        2
+                        ), 1, 2, ParserHelper.Addition),
                     new ChunkNumber(6, ParserHelper.NumberOperand),
                     new ChunkExpression(ParserHelper.Division),
                     new ChunkExpression(ParserHelper.Sin),
@@ -105,25 +144,23 @@ namespace MathEngineTests
                 },
                 "1 45 sin + "
             };
-
-            memory = pool.Rent(2);
-            data = new float[]
-            {
-                0f,
-                4f,
-                3f,
-                2f
-            };
-
-            FillMemory1();
-
+            
             yield return new object[]
             {
                 "1 + 2 + 3 + 4 + 5 / 16 / 5 / 3",
                 new ChunkExpression[]
                 {
                     new ChunkNumber(1, ParserHelper.NumberOperand),
-                    new SequenceNumberOperation(memory, 3, 4, ParserHelper.Addition),
+                    new SequenceNumberOperation(
+                        FillMemory(new float[]
+                        {
+                            0f,
+                            4f,
+                            3f,
+                            2f
+                        },
+                        4
+                        ), 3, 4, ParserHelper.Addition),
                     new ChunkNumber(5, ParserHelper.NumberOperand),
                     new ChunkNumber(16, ParserHelper.NumberOperand),
                     new ChunkExpression(ParserHelper.Division),
@@ -136,24 +173,17 @@ namespace MathEngineTests
                 "1 4 3 2 S+(4) 5 16 / 5 / 3 / + "
             };
 
-            void FillMemory1()
+            IMemoryOwner<float> FillMemory(float[] data, int rentSize)
             {
+                var memoryOwner = MemoryPool<float>.Shared.Rent(rentSize);
                 var index = 0;
                 foreach (var item in data)
                 {
-                    memory.Memory.Span[index] = item;
+                    memoryOwner.Memory.Span[index] = item;
                     index++;
                 }
-            }
 
-            void FillMemory2()
-            {
-                var index = 0;
-                foreach (var item in data)
-                {
-                    memory2.Memory.Span[index] = item;
-                    index++;
-                }
+                return memoryOwner;
             }
         }
 
@@ -202,9 +232,6 @@ namespace MathEngineTests
                             sequenceExp.SequenceMemory.Memory.Span.Slice(0, sequenceExp.ExpectedParamsCount).ToArray(),
                             Is.EquivalentTo(sequence.SequenceMemory.Memory.Span.Slice(0, sequence.ExpectedParamsCount).ToArray())
                             );
-
-                        sequence.SequenceMemory.Dispose();
-                        sequenceExp.SequenceMemory.Dispose();
 
                         break;
                     }

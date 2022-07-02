@@ -87,7 +87,7 @@ namespace MathEngine.Helpers
                 return -1;
             }
 
-            if (spanIterate.Length > 1 && spanIterate[i] == '0' && spanIterate[i + 1] != '.' && spanIterate[i + 1] != ',')
+            if(spanIterate.Length > 2 && spanIterate[0] == '0' && spanIterate[1] == '0')
             {
                 throw new ArgumentException("Incorrect number");
             }
@@ -95,11 +95,16 @@ namespace MathEngine.Helpers
             bool findSeparator = false;
             for (; i < spanIterate.Length; i++)
             {
+                if(spanIterate[i] == ' ')
+                {
+                    return i;
+                }
+
                 if (Numbers.Contains(spanIterate[i]))
                 {
                     continue;
                 }
-
+                else
                 if (chars[i] == ',' || chars[i] == '.')
                 {
                     if (findSeparator)
@@ -115,8 +120,10 @@ namespace MathEngine.Helpers
                     findSeparator = true;
                     continue;
                 }
-
-                return i;
+                else
+                {
+                    return i;
+                }
             }
 
             return spanIterate.Length;

@@ -11,6 +11,8 @@ namespace MathEngineTests
         public void IsNumber()
         {
             Assert.That(ParserHelper.IsNumber("0".AsSpan()), Is.EqualTo(1));
+            Assert.That(ParserHelper.IsNumber("0+1".AsSpan()), Is.EqualTo(1));
+            Assert.That(ParserHelper.IsNumber("0 + 1".AsSpan()), Is.EqualTo(1));
             Assert.That(ParserHelper.IsNumber("0.132544".AsSpan()), Is.EqualTo(8));
             Assert.That(ParserHelper.IsNumber("456213".AsSpan()), Is.EqualTo(6));
             
