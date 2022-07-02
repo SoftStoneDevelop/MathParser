@@ -1,4 +1,6 @@
-﻿namespace MathEngine
+﻿using System.Text;
+
+namespace MathEngine
 {
     public interface IMathEngine
     {
