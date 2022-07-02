@@ -9,8 +9,11 @@ namespace MathEngineTests
         [Test]
         public void CalculateExpression()
         {
-            var engine = new MathEngine.MathEngineSIMD();
+            var engine = new MathEngine.MathEngine();
             Assert.That(engine.CalculateExpression("10+10+10+10+10+10+10+10+10+10+10"), Is.EqualTo(110));
+            Assert.That(engine.CalculateExpression("10*10*10*10*10*10*10*10*10*10*10"), Is.EqualTo(100000000000f));
+            Assert.That(engine.CalculateExpression("1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 "), Is.EqualTo(520));
+            Assert.That(engine.CalculateExpression("10*10*10 + 10+10"), Is.EqualTo(1020f));
             Assert.That(engine.CalculateExpression("1+2-3"), Is.EqualTo(0));
             Assert.That(engine.CalculateExpression("2*(2-3)"), Is.EqualTo(-2));
             Assert.That(engine.CalculateExpression("2 + 3 * 4 / 2 "), Is.EqualTo(8));
@@ -25,7 +28,10 @@ namespace MathEngineTests
         [Test]
         public void CalculateExpressionSpan()
         {
-            var engine = new MathEngine.MathEngineSIMD();
+            var engine = new MathEngine.MathEngine();
+            Assert.That(engine.CalculateExpression("10+10+10+10+10+10+10+10+10+10+10"), Is.EqualTo(110));
+            Assert.That(engine.CalculateExpression("10*10*10*10*10*10*10*10*10*10*10"), Is.EqualTo(100000000000f));
+            Assert.That(engine.CalculateExpression("10*10*10 + 10+10"), Is.EqualTo(1020f));
             Assert.That(engine.CalculateExpression("1+2-3".AsSpan()), Is.EqualTo(0));
             Assert.That(engine.CalculateExpression("2*(2-3)".AsSpan()), Is.EqualTo(-2));
             Assert.That(engine.CalculateExpression("2 + 3 * 4 / 2 ".AsSpan()), Is.EqualTo(8));
@@ -40,134 +46,31 @@ namespace MathEngineTests
         [Test]
         public void Multiplication()
         {
-            var engine = new MathEngine.MathEngineSIMD();
+            var engine = new MathEngine.MathEngine();
             var data = new float[]
             {
-                0.987f, 4f, 2, -0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                0.987f, -4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                3.456f
-            };
-            //Assert.That(engine.Multiplication(data), Is.EqualTo(0.661338389f));
-
-            //data = new float[]
-            //{
-            //    0.987f
-            //};
-            //Assert.That(engine.Multiplication(data), Is.EqualTo(0.987f));
-
-            //data = new float[]
-            //{
-            //    0.987f, 4f, 2, -0.1f,
-            //    0.987f, 4f, 2, 0.1f,
-            //    -0.987f, 4f, 2, 0.1f,
-            //    0.987f, 4f, 2, 0.1f,
-            //    0.987f, -4f, 2, 0.1f,
-            //    0.987f, 4f, 2, 0.1f,
-            //    -0.987f, 4f, 2, 0.1f,
-            //    3.456f, 0
-            //};
-
-            //Assert.That(engine.Multiplication(data), Is.EqualTo(0f));
-
-            data = new float[]
-            {
-                0.987f, 4f, 2, -0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                0.987f, -4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                3.456f, 0.987f, 4f, 2, 
-                -0.1f, 0.987f, 4f, 2,
-                0.1f, -0.987f, 4f, 2,
-                0.1f, 0.987f, 4f, 2,
-                0.1f, 0.987f, -4f, 2,
-                0.1f, 0.987f, 4f, 2,
-                0.1f, -0.987f, 4f, 2, 
-                0.1f, 3.456f,
+                1,2,3,4,1,2,3,4,
+                1,2,3,4,1,2,3,4,
+                1,2,3,4,1,2,3,4,
+                1,2,3,4,1,2,3,4,
             };
 
-            Assert.That(engine.Multiplication(data), Is.EqualTo(0.437368453f));
+            Assert.That(engine.Multiplication(data), Is.EqualTo(1.10075314E+11f));
         }
 
         [Test]
         public void Addition()
         {
-            var engine = new MathEngine.MathEngineSIMD();
+            var engine = new MathEngine.MathEngine();
             var data = new float[]
             {
-                0.987f, 4f, 2, -0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                0.987f, -4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                3.456f
-            };
-            Assert.That(engine.Addition(data), Is.EqualTo(0.661338389f));
-
-            data = new float[]
-            {
-                0.987f
-            };
-            Assert.That(engine.Addition(data), Is.EqualTo(0.987f));
-
-            data = new float[]
-            {
-                0.987f, 4f, 2, -0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                0.987f, -4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                3.456f, 0
+                1,2,3,4,1,2,3,4,
+                1,2,3,4,1,2,3,4,
+                1,2,3,4,1,2,3,4,
+                1,2,3,4,1,2,3,4,
             };
 
-            Assert.That(engine.Addition(data), Is.EqualTo(0f));
-
-            data = new float[]
-            {
-                0.987f, 4f, 2, -0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                0.987f, -4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                3.456f, 0.987f, 4f, 2,
-                -0.1f, 0.987f, 4f, 2,
-                0.1f, -0.987f, 4f, 2,
-                0.1f, 0.987f, 4f, 2,
-                0.1f, 0.987f, -4f, 2,
-                0.1f, 0.987f, 4f, 2,
-                0.1f, -0.987f, 4f, 2,
-                0.1f, 3.456f,
-            };
-
-            Assert.That(engine.Addition(data), Is.EqualTo(0f));
-
-            data = new float[]
-            {
-                0f, 0f, 0f, 0f,
-                0f, 0f, 0f, 0f,
-                0f, 0f, 0f, 0f,
-                0f, 0f, 2, 0f,
-                0.987f, -4f, 2, 0.1f,
-                0.987f, 4f, 2, 0.1f,
-                -0.987f, 4f, 2, 0.1f,
-                3.456f, 0.987f, 4f, 2,
-                -0.1f, 0.987f
-            };
-
-            Assert.That(engine.Addition(data), Is.EqualTo(0f));
+            Assert.That(engine.Addition(data), Is.EqualTo(80.0f));
         }
     }
 }

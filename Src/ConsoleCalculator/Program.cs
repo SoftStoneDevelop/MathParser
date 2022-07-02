@@ -1,14 +1,13 @@
-﻿using MathEngine;
-using System;
+﻿using System;
 
 namespace ConsoleCalculator
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("Write 'Exit' for close application");
-            var engine = new MathEngineSIMD();
+            var engine = new MathEngine.MathEngine();
             Console.ForegroundColor = ConsoleColor.White;
 
             while (true)

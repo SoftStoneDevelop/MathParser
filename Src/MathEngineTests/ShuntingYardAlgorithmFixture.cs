@@ -16,6 +16,80 @@ namespace MathEngineTests
         {
             yield return new object[]
             {
+                "1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 ",
+                new ChunkExpression[]
+                {
+                    new ChunkNumber(1, ParserHelper.NumberOperand),
+                    new SequenceNumberOperation(
+                        FillMemory(new float[]
+                        {
+                            0f,
+                            1f,
+                            1f,
+                            1f,
+                            1f,
+                            1f,
+                            1f,
+                            1f
+                        },
+                        3
+                        )
+                        , 7, 8, ParserHelper.Addition),
+                    new ChunkNumber(1, ParserHelper.NumberOperand),
+                    new SequenceNumberOperation(
+                        FillMemory(new float[]
+                        {
+                            0f,
+                            2f,
+                            2f,
+                            2f,
+                            2f,
+                            2f,
+                            2f,
+                            2f,
+                            2f,
+                            2f
+                        },
+                        2
+                        )
+                        , 9, 10, ParserHelper.Multiplication),
+                    new ChunkExpression(ParserHelper.Addition)
+                },
+                "1 1 1 1 1 1 1 1 S+(8) 1 2 2 2 2 2 2 2 2 2 S*(10) + "
+            };
+
+            yield return new object[]
+            {
+                "10 * 10 * 10 + 10 + 10",
+                new ChunkExpression[]
+                {
+                    new ChunkNumber(10, ParserHelper.NumberOperand),
+                    new SequenceNumberOperation(
+                        FillMemory(new float[]
+                        {
+                            0f,
+                            10f,
+                            10f
+                        },
+                        3
+                        )
+                        , 2, 3, ParserHelper.Multiplication),
+                    new SequenceNumberOperation(
+                        FillMemory(new float[]
+                        {
+                            0f,
+                            10f,
+                            10f
+                        },
+                        2
+                        )
+                        , 2, 3, ParserHelper.Addition),
+                },
+                "10 10 10 S*(3) 10 10 S+(3) "
+            };
+
+            yield return new object[]
+            {
                 "0 + 1",
                 new ChunkExpression[]
                 {
@@ -96,19 +170,12 @@ namespace MathEngineTests
                         )
                         , 1, 2, ParserHelper.Multiplication),
                     new ChunkNumber(1, ParserHelper.NumberOperand),
-                    new SequenceNumberOperation(
-                        FillMemory(new float[]
-                        {
-                            0f,
-                            5f
-                        },
-                        2
-                        )
-                        , 1, 2, ParserHelper.Subtraction),
+                    new ChunkNumber(5, ParserHelper.NumberOperand),
+                    new ChunkExpression(ParserHelper.Subtraction),
                     new ChunkExpression(ParserHelper.Division),
                     new ChunkExpression(ParserHelper.Addition),
                 },
-                "3 4 2 S*(2) 1 5 S-(2) / + "
+                "3 4 2 S*(2) 1 5 - / + "
             };
 
             yield return new object[]
