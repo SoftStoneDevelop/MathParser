@@ -8,7 +8,7 @@ namespace ConsoleCalculator
         static void Main(string[] args)
         {
             Console.WriteLine("Write 'Exit' for close application");
-            var engine = new MathEngine.MathEngine();
+            var engine = new MathEngineSIMD();
             Console.ForegroundColor = ConsoleColor.White;
 
             while (true)
