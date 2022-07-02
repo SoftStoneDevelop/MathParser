@@ -71,7 +71,7 @@ namespace MathEngine.Helpers
         //becasue this is special
         public static readonly Operator LeftBracket = new("(", ChunkType.None, 0, Associativity.None);
         public static readonly Operator RightBracket = new(")", ChunkType.None, 0, Associativity.None);
-        public static readonly ExpressionItem NumberOperand = new(ChunkType.Number);
+        public static readonly Operand NumberOperand = new(ChunkType.Number);
 
         public static int IsNumber(ReadOnlySpan<char> chars)
         {
@@ -80,7 +80,7 @@ namespace MathEngine.Helpers
                 throw new ArgumentException("Empty span");
             }
 
-            var spanIterate = chars.Slice(0);
+            var spanIterate = chars[..];
             int i = 0;
             if (!Numbers.Contains(spanIterate[i]))
             {
@@ -104,12 +104,12 @@ namespace MathEngine.Helpers
                 {
                     if (findSeparator)
                     {
-                        throw new ArgumentException($"Double separator in number '{spanIterate.Slice(0, i + 1)}'");
+                        throw new ArgumentException($"Double separator in number '{spanIterate[..(i + 1)]}'");
                     }
 
                     if (i + 1 == spanIterate.Length)
                     {
-                        throw new ArgumentException($"Unexpected end of number '{spanIterate.Slice(0, i + 1)}'");
+                        throw new ArgumentException($"Unexpected end of number '{spanIterate[..(i + 1)]}'");
                     }
 
                     findSeparator = true;
