@@ -105,7 +105,7 @@ namespace MathEngine.Helpers
                     continue;
                 }
                 else
-                if (chars[i] == ',' || chars[i] == '.')
+                if (spanIterate[i] == ',' || spanIterate[i] == '.')
                 {
                     if (findSeparator)
                     {
