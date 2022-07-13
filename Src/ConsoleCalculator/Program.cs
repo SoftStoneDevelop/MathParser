@@ -13,7 +13,7 @@ namespace ConsoleCalculator
             while (true)
             {
                 var expression = Console.ReadLine();
-                if(string.IsNullOrEmpty(expression))
+                if(string.IsNullOrWhiteSpace(expression))
                 {
                     continue;
                 }
