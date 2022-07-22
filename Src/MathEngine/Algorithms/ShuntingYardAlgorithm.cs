@@ -27,6 +27,7 @@ namespace MathEngine.Algorithms
             
             int sequenceSize = 0;
             int expectedParamsSequnce = 0;
+            ExpressionItem? lastItem = null;
 
             for (int i = 0; i < spanIterate.Length; i++)
             {
@@ -38,6 +39,7 @@ namespace MathEngine.Algorithms
                 if (spanIterate[i] == '(')
                 {
                     stackOperators.Push(ParserHelper.LeftBracket);
+                    lastItem = ParserHelper.LeftBracket;
                     continue;
                 }
 
@@ -68,10 +70,11 @@ namespace MathEngine.Algorithms
                         throw new InvalidOperationException("There are mismatched parentheses 'Left Bracket'");
                     }
                     stackOperators.Pop();
+                    lastItem = ParserHelper.RightBracket;
                 }
 
                 //check is number
-                numberLength = ParserHelper.IsNumber(spanIterate.Slice(i));
+                numberLength = ParserHelper.IsNumber(spanIterate.Slice(i), ParserHelper.CanBeNegativeNumber(lastItem));
                 if (numberLength != -1)
                 {
                     var numberChars = spanIterate.Slice(i, numberLength);
@@ -94,6 +97,7 @@ namespace MathEngine.Algorithms
                         );
                     i += numberLength - 1;
 
+                    lastItem = ParserHelper.NumberOperand;
                     continue;
                 }
 
@@ -118,7 +122,10 @@ namespace MathEngine.Algorithms
                     }
 
                     if (isPattern)
+                    {
                         stackOperators.Push(tempOp);
+                        lastItem = tempOp;
+                    }
                 }
 
                 //check is operator
@@ -159,6 +166,7 @@ namespace MathEngine.Algorithms
                         }
 
                         stackOperators.Push(tempOp);
+                        lastItem = tempOp;
 
                         break;
                     }

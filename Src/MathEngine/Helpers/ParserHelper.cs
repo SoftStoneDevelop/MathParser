@@ -73,7 +73,12 @@ namespace MathEngine.Helpers
         public static readonly Operator RightBracket = new(")", ChunkType.None, 0, Associativity.None);
         public static readonly Operand NumberOperand = new(ChunkType.Number);
 
-        public static int IsNumber(ReadOnlySpan<char> chars)
+        public static bool CanBeNegativeNumber(ExpressionItem item)
+        {
+            return item == null || (item != RightBracket && item != NumberOperand);
+        }
+
+        public static int IsNumber(ReadOnlySpan<char> chars, in bool canBeNagative)
         {
             if (chars.Length < 1)
             {
@@ -82,6 +87,12 @@ namespace MathEngine.Helpers
 
             var spanIterate = chars[..];
             int i = 0;
+
+            if(canBeNagative && spanIterate[i] == '-')
+            {
+                i++;
+            }
+
             if (!Numbers.Contains(spanIterate[i]))
             {
                 return -1;
